@@ -1,0 +1,20 @@
+name: Generate Dependencies CSV
+
+on:
+  schedule:
+    - cron:  '0 12 * * *'
+
+jobs:
+  generate-dependencies-csv:
+    runs-on: ubuntu-20.04
+    name: Genereate a list of dependencies for this repository
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - run: echo "REPOSITORY_NAME=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
+        shell: bash
+      - name: Generate dependencies action
+        uses: thedave42/generate-dependencies-csv-action@v6
+        with:
+          repo-token: ${{ secrets.GH_TOKEN_DEPENDENCIES }}
+          repo-names: ${{ env.REPOSITORY_NAME }}
