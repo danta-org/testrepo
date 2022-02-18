@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - run: echo "::set-output name=plan::${\"Hello\"}"
+      - run: echo "::set-output name=plan::\"Hello\""
         shell: bash
         
       - name: Truncate Plan
