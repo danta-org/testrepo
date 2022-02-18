@@ -9,12 +9,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - run: echo "::set-output name=plan::\"Hello\""
+      - name: Set Output
+        id: set-output
+        run: echo "::set-output name=plan::\"Hello\""
         shell: bash
         
       - name: Truncate Plan
         id: truncate-plan
-        run: echo '::set-output name=plan::${${{ env.REPOSITORY_NAME }}}'
+        run: echo '::set-output name=plan::${${{ steps.set-output.outputs.plan }}}'
 
       - name: Test truncate output
         run: echo ${{ steps.truncate-plan.outputs.plan }}
