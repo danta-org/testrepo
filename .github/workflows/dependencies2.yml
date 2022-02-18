@@ -16,7 +16,9 @@ jobs:
         
       - name: Truncate Plan
         id: truncate-plan
-        run: echo '::set-output name=plan::${{ steps.set-output.outputs.plan }}'
+        run: |
+          stuff='${{ steps.set-output.outputs.plan }}
+          echo "::set-output name=plan::${stuff:0:5}"
 
       - name: Test truncate output
         run: echo '${{ steps.truncate-plan.outputs.plan }}'
