@@ -20,3 +20,4 @@ jobs:
 
       - name: Test truncate output
         run: echo "${{ steps.truncate-plan.outputs.plan }}"
+        shell: bash
