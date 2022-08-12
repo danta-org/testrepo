@@ -1,78 +1,82 @@
 name: Terraform
-description: Terraform plan or apply
+
 on:
   workflow_call:
-  inputs:
-    path:
-      description: Terraform exec path
-      required: true
-    action:
-      description: Plan or apply
-  secrets: inherit
+    inputs:
+      path:
+        type: string
+        description: Terraform exec path
+        required: true
+      action:
+        type: string
+        description: Plan or apply
+        required: true
+jobs:
+  plan:
+      runs-on: ubuntu-latest
+      name: 'Terraform Plan'
+      if: github.event_name == 'pull_request'
+      env:
+          TF_VAR_github_token: ${{ secrets.GH_TOKEN }}
+          TF_VAR_github_org: symplr-software
+          TF_VAR_github_idp_sync_enabled: true
+          TF_VAR_github_app_id: ${{ secrets.GH_APP_ID }}
+          TF_VAR_github_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
+          TF_VAR_github_app_pem_file: ${{ secrets.GH_APP_PEM_FILE }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-2
 
-plan:
-    name: 'Terraform Plan'
-    if: github.event_name == 'pull_request'
-    env:
-        TF_VAR_github_token: ${{ secrets.GH_TOKEN }}
-        TF_VAR_github_org: symplr-software
-        TF_VAR_github_idp_sync_enabled: true
-        TF_VAR_github_app_id: ${{ secrets.GH_APP_ID }}
-        TF_VAR_github_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
-        TF_VAR_github_app_pem_file: ${{ secrets.GH_APP_PEM_FILE }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: us-east-2
+      # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+      defaults:
+        run:
+          shell: bash
 
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
+      steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v2
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.2.5
 
-    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.2.5
-
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init
-      run: terraform init
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Init
+        run: terraform init
 
   apply:
-    name: 'Terraform Apply'
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    environment: production
-    env:
-        TF_VAR_github_token: ${{ secrets.GH_TOKEN }}
-        TF_VAR_github_org: symplr-software
-        TF_VAR_github_idp_sync_enabled: true
-        TF_VAR_github_app_id: ${{ secrets.GH_APP_ID }}
-        TF_VAR_github_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
-        TF_VAR_github_app_pem_file: ${{ secrets.GH_APP_PEM_FILE }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: us-east-2
+      runs-on: ubuntu-latest
+      name: 'Terraform Apply'
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      environment: production
+      env:
+          TF_VAR_github_token: ${{ secrets.GH_TOKEN }}
+          TF_VAR_github_org: symplr-software
+          TF_VAR_github_idp_sync_enabled: true
+          TF_VAR_github_app_id: ${{ secrets.GH_APP_ID }}
+          TF_VAR_github_app_installation_id: ${{ secrets.GH_APP_INSTALLATION_ID }}
+          TF_VAR_github_app_pem_file: ${{ secrets.GH_APP_PEM_FILE }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-2
 
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
+      # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+      defaults:
+        run:
+          shell: bash
 
-    steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v2
+      steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
 
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init
-      run: terraform init
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Init
+        run: terraform init
